@@ -1,0 +1,5 @@
+build
+dist
+HyTest.egg-info
+# It's a little personal script I use for testing
+test.hy

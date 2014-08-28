@@ -1,0 +1,11 @@
+#!/usr/bin/env python
+# A little wrapper over HyTest
+
+import sys
+from hy.core.language import is_integer
+from hytest import main, load_tests
+
+if __name__ == '__main__':
+    res = main(*sys.argv)
+    if is_integer(res):
+        sys.exit(res)
