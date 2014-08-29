@@ -39,7 +39,7 @@ HyTest is a really cool unit testing framework for `Hy <http://docs.hylang.org/>
      (test aeq 0 0.00000001) ; same as ~
      (test !~ 0 1) ; test for not almost equal(like unittest's assertNotAlmostEqual)
      (test ane 0 1); same as !~
-     (test =~ "abc" "b") ; test to see if "abc" matches regex "a"
+     (test =~ "abc" "b") ; test to see if "abc" matches regex "b"
      (test re "abc" "b") ; same as =~
      (test !=~ "abc" "d") ; opposite of =~
      (test not-re "abc" "d") ; same as !=~
