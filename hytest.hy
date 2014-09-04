@@ -8,6 +8,16 @@
         traceback
         sys)
 
+(if-python2
+  (try
+    (import [cStringIO [StringIO]])
+    (catch []
+      (import [StringIO [StringIO]])
+    )
+  )
+  (import [io [StringIO]])
+)
+
 (def __version__ 0.1)
 
 (try
@@ -263,8 +273,6 @@
     (print s)
     (print stars)
   )
-  (def run 0)
-  (def skipped [])
   (load-tests)
   (def wanted (OrderedDict))
   (when wanted-names
@@ -288,37 +296,81 @@
   (unless wanted
     (def wanted tests)
   )
+  (def run 0)
+  (def skipped [])
   (def traces [])
+  (def outputs (, [] [] []))
+  (def stdout sys.stdout)
+  (def stderr sys.stderr)
   (for [[mod mtests] (wanted.items)]
     (sys.stdout.write (% "\033[34m%s\033[0m " mod))
     (for [[name tst] (mtests.items)]
+      (def fullname (--hytest-fm "%s:%s" mod name))
+      (def out (StringIO))
+      (def err (StringIO))
+      (def sys.stdout out)
+      (def sys.stderr err)
       (try
-        (tst)
+        (try
+          (tst)
+          (catch []
+            (raise)
+          )
+          (finally
+            (def sys.stdout stdout)
+            (def sys.stderr stderr)
+          )
+        )
         (catch [e SkipException]
-          (skipped.append (, (--hytest-fm "%s:%s" mod name) e.message))
+          (skipped.append (, fullname e.message))
+          (.append (get outputs 1) (, (out.getvalue) (err.getvalue)))
           (sys.stdout.write "\033[35mS\033[0m")
         )
         (catch [e Exception]
           (sys.stdout.write "\033[31mF\033[0m")
-          (traces.append (, (--hytest-fm "%s:%s" mod name)
-                            (traceback.format-exc)))
+          (traces.append (, fullname (traceback.format-exc)))
+          (.append (get outputs 0) (, (out.getvalue) (err.getvalue)))
         )
-        (else (sys.stdout.write "\033[32m.\033[0m"))
+        (else
+          (sys.stdout.write "\033[32m.\033[0m")
+          (.append (get outputs 2) (, (out.getvalue) (err.getvalue)))
+        )
+        (finally
+          (+= run 1)
+        )
       )
-      (+= run 1)
     )
     (print)
   )
-  (print "\033[31m")
+  (defn print_bufs [tst n]
+    (def st (get outputs n))
+    (if-not st
+      (raise (ValueError ""))
+    )
+    (def (, out err) (get st 0))
+    (when out
+      (starstr (% "CAPTURED STDOUT: %s: " tst))
+      (print out)
+    )
+    (when err
+      (starstr (% "CAPTURED STDERR: %s: " tst))
+      (print err)
+    )
+    (.pop st)
+  )
   (for [[tst trace] traces]
+    (print_bufs tst 0)
+    (print "\033[31m")
     (starstr (% "ERROR: %s:" tst))
     (print trace)
+    (print "\033[0m")
   )
-  (print "\033[35m")
   (for [[tst reason] skipped]
+    (print_bufs tst 1)
+    (print "\033[35m")
     (starstr (--hytest-fm "SKIPPED %s: %s" tst reason))
+    (print "\033[0m")
   )
-  (print "\033[0m")
   (print (% "\033[34mTests run: %d" run))
   (print (% "\033[32mTests succeeded: %d" (- run (len traces) (len skipped))))
   (print (% "\033[31mTests failed: %d\033[0m" (len traces)))
