@@ -210,7 +210,7 @@
 (defmacro test [name &rest args]
   (def sname (str name))
   (if-not (in sname opmap)
-    (raise (ValueError (% "unknown comparator: %s" sname)))
+    (macro-error name (% "unknown comparator: %s" sname))
   )
   (apply (get opmap sname) args)
 )
