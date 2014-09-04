@@ -399,9 +399,7 @@
 )
 
 (defn load-tests []
-  (list (map
-    (fn [p]
-      (import-file-to-module (get (path.splitext (path.basename p)) 0) p)
-    )
-  (find-tests)))
+  (for [p (find-tests)]
+    (import-file-to-module (get (path.splitext (path.basename p)) 0) p)
+  )
 )
