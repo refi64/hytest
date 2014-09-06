@@ -323,17 +323,17 @@
         )
         (catch [e SkipException]
           (skipped.append (, fullname e.message))
-          (.append (get outputs 1) (, (out.getvalue) (err.getvalue)))
+          (.append (get outputs 1) (, fullname (out.getvalue) (err.getvalue)))
           (sys.stdout.write "\033[35mS\033[0m")
         )
         (catch [e Exception]
           (sys.stdout.write "\033[31mF\033[0m")
           (traces.append (, fullname (traceback.format-exc)))
-          (.append (get outputs 0) (, (out.getvalue) (err.getvalue)))
+          (.append (get outputs 0) (, fullname (out.getvalue) (err.getvalue)))
         )
         (else
           (sys.stdout.write "\033[32m.\033[0m")
-          (.append (get outputs 2) (, (out.getvalue) (err.getvalue)))
+          (.append (get outputs 2) (, fullname (out.getvalue) (err.getvalue)))
         )
         (finally
           (+= run 1)
@@ -342,12 +342,12 @@
     )
     (print)
   )
-  (defn print_bufs [tst n]
+  (defn print-bufs [n]
     (def st (get outputs n))
     (if-not st
       (raise (ValueError ""))
     )
-    (def (, out err) (get st 0))
+    (def (, tst out err) (get st 0))
     (when out
       (starstr (% "CAPTURED STDOUT: %s: " tst))
       (print out)
@@ -356,17 +356,23 @@
       (starstr (% "CAPTURED STDERR: %s: " tst))
       (print err)
     )
-    (.pop st)
+    (st.pop 0)
+  )
+  (while true
+    (try
+      (print-bufs 2)
+      (catch [ValueError] (break))
+    )
   )
   (for [[tst trace] traces]
-    (print_bufs tst 0)
+    (print_bufs 0)
     (print "\033[31m")
     (starstr (% "ERROR: %s:" tst))
     (print trace)
     (print "\033[0m")
   )
   (for [[tst reason] skipped]
-    (print_bufs tst 1)
+    (print_bufs 1)
     (print "\033[35m")
     (starstr (--hytest-fm "SKIPPED %s: %s" tst reason))
     (print "\033[0m")
