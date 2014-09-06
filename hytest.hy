@@ -27,6 +27,7 @@
 )
 
 (defclass SkipException [Exception] [])
+(defclass FailException [Exception] [])
 
 (defmacro skip-test [reason]
   `(raise (.SkipException (__import__ "hytest") ~reason))
@@ -38,6 +39,10 @@
 
 (defmacro skip-test-unless [cond reason]
   `(if-not ~cond (raise (.SkipException (__import__ "hytest") ~reason)))
+)
+
+(defmacro fail-test [&optional [msg ""]]
+  `(raise (.FailException (__import__ "hytest") ~msg))
 )
 
 (defn fm [s &rest args]

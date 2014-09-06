@@ -14,8 +14,11 @@
 )
 
 (test-set test-skip
-  (skip-test "This is OK; it tests if test skipping works")
-  (assert false)
+  (test raises-msg "skipthis" (skip-test "skipthis"))
+)
+
+(test-set test-fails
+  (test raises-msg "failthis" (fail-test "failthis"))
 )
 
 (test-set-fails test-fails
