@@ -21,7 +21,7 @@
   (test raises-msg "failthis" (fail-test "failthis"))
 )
 
-(test-set-fails test-fails
+(test-set-fails test-fails2
   (assert false)
 )
 
