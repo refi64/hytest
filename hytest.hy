@@ -6,6 +6,7 @@
         [collections [OrderedDict]]
         [os [walk getcwd path]]
         traceback
+        warnings
         sys)
 
 (if-python2
@@ -226,7 +227,11 @@
   (if-not (in file tests)
     (assoc tests file (.OrderedDict (__import__ "collections")))
   )
-  (assoc (get tests file) func.__name__ func)
+  (def mytests (get tests file))
+  (if (in func.__name__ mytests)
+    (warnings.warn (+ "duplicate test: " file ":" func.__name__))
+  )
+  (assoc mytests func.__name__ func)
 )
 
 (defn get-setup-and-teardown [body]
