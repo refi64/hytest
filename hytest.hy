@@ -10,13 +10,19 @@
         sys)
 
 (if-python2
-  (try
-    (import [cStringIO [StringIO]])
-    (catch []
-      (import [StringIO [StringIO]])
+  (do
+    (try
+      (import [cStringIO [StringIO]])
+      (catch []
+        (import [StringIO [StringIO]])
+      )
     )
+    (defmacro --hytest-x [x] `(raise ~x))
   )
-  (import [io [StringIO]])
+  (do
+    (import [io [StringIO]])
+    (defmacro --hytest-x [x] `(raise ~x :from nil))
+  )
 )
 
 (def __version__ 0.1)
@@ -139,7 +145,7 @@
   `(try
     ~@body
     (catch [~raise-var Exception]
-      (raise (AssertionError (+ "code raised exception " (repr ~raise-var))))
+      (--hytest-x (AssertionError (+ "code raised exception " (repr ~raise-var))))
     )
   )
 )
@@ -148,7 +154,7 @@
   `(try
     ~@body
     (catch [~raise-var [~@exceptions]]
-      (raise (AssertionError (+ "code raised exception " (repr ~raise-var))))
+      (--hytest-x (AssertionError (+ "code raised exception " (repr ~raise-var))))
     )
   )
 )
@@ -158,7 +164,7 @@
     ~@body
     (catch [~raise-var Exception]
       (if (.search (__import__ "re") ~m (str ~raise-var))
-        (raise (AssertionError
+        (--hytest-x (AssertionError
           ~(fm "raised exception message '%s' matched %s" `(str ~raise-var) m))
         )
       )
