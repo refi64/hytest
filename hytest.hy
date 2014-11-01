@@ -334,7 +334,7 @@
           )
         )
         (catch [e SkipException]
-          (skipped.append (, fullname e.message))
+          (skipped.append (, fullname (str e)))
           (.append (get outputs 1) (, fullname (out.getvalue) (err.getvalue)))
           (sys.stdout.write "\033[35mS\033[0m")
         )

@@ -34,7 +34,7 @@ HyTest is a really cool unit testing framework for `Hy <http://docs.hylang.org/>
      (test is-nil z) ; test to see if equal-to None/nil
      (test is-not-nil x) ; opposite of is-nil
      (test is-none z) ; same as is-nil
-     (test is-not-none z) ; same as is-not-nil
+     (test is-not-none x) ; same as is-not-nil
      (test ~ 0 0.00000001) ; test for almost equal(like unittest's assertAlmostEqual)
      (test aeq 0 0.00000001) ; same as ~
      (test !~ 0 1) ; test for not almost equal(like unittest's assertNotAlmostEqual)
@@ -57,7 +57,7 @@ HyTest is a really cool unit testing framework for `Hy <http://docs.hylang.org/>
      (test raises (assert false)) ; test that the code that follows raises an exception
      (test not-raises (assert true)) ; opposite of raises
      (test raises-exc [AssertionError] (assert false)) ; test that the code that follows raises one of the exceptions in the list
-     (test not-raises-exc [AssertionError] (assert false)) ; test that one of the given exceptions is NOT raised by the code that follows
+     (test not-raises-exc [AssertionError] (assert true)) ; test that one of the given exceptions is NOT raised by the code that follows
      (test raises-msg "abc" (raise (ValueError "abc"))) ; test that the code that follows raises an exception whose message matches the regex "abc"
      (test not-raises-msg "abc" (raise (ValueError "ab"))) ; opposite of raises-msg
    )
