@@ -1,14 +1,16 @@
 try:
-    #assert False
+    # assert False
     from setuptools import setup
+    from setuptools.command.install import install
+    from setuptools.command.install_lib import install_lib
     kw = {'install_requires': 'hy >= 0.9.12'}
 except:
     from distutils.core import setup
+    from distutils.command.install import install
+    from distutils.command.install_lib import install_lib
     kw = {}
 
 # XXX: This is a hack
-from distutils.command.install import install
-from distutils.command.install_lib import install_lib
 import os, shutil
 
 orig_run = install_lib.run
@@ -16,7 +18,7 @@ orig_run = install_lib.run
 def run(self):
     self.skip_build = True
     if not os.path.isdir(self.build_dir):
-        os.mkdir(self.build_dir)
+        os.makedirs(os.path.join(os.path.curdir, self.build_dir))
         shutil.copy('hytest.hy', os.path.join(self.build_dir, 'hytest.hy'))
     orig_run(self)
 
@@ -25,7 +27,8 @@ install_lib.run = run
 assert install.sub_commands[0][0] == 'install_lib'
 install.sub_commands[0] = (install.sub_commands[0][0], lambda *_: True)
 
-import hy, hytest
+import hy
+from hytest import __version__
 
 try:
     with open('README.rst', 'r') as f:
@@ -34,7 +37,7 @@ except:
     readme = ''
 
 setup(name='HyTest',
-      version=str(hytest.__version__),
+      version=str(__version__),
       description='A testing framework for Hy',
       long_description=readme,
       author='Ryan Gonzalez',
