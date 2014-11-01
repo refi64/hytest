@@ -258,12 +258,14 @@
 
 (defmacro test-set-fails [name &rest body]
   (def [body setup teardown] (get-setup-and-teardown body))
+  (def skipexc (gensym))
   `(do
     (defn ~name []
       ~@setup
+      (def ~skipexc (getattr (__import__ "hytest") "SkipException"))
       (try
         (do ~@body)
-        (catch [(getattr (__import__ "hytest") "SkipException")] (raise))
+        (catch [~skipexc] (raise))
         (catch [])
         (finally ~@teardown)
       )
