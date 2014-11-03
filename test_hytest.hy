@@ -96,3 +96,9 @@
   (test raises-exc [AssertionError] (test false 1))
   (test raises-exc [AssertionError] (test not 1))
 )
+
+(def x 1)
+
+(test-set test-globals
+  (test = x 1)
+)

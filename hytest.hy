@@ -227,6 +227,7 @@
   (apply (get opmap sname) args)
 )
 
+(def mods [])
 (def tests (OrderedDict))
 
 (defn add-test [func file]
@@ -424,6 +425,7 @@
 
 (defn load-tests []
   (for [p (find-tests)]
-    (import-file-to-module (get (path.splitext (path.basename p)) 0) p)
+    (mods.append
+      (import-file-to-module (get (path.splitext (path.basename p)) 0) p))
   )
 )
