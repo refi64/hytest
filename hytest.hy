@@ -65,10 +65,9 @@
 )
 
 (defn cmp-base [op lhs rhs fms]
-  (let [[ln (gensym)] [rn (gensym)]]
-    `(let [[~ln ~lhs] [~rn ~rhs]]
-      ~(tst `(~op ~ln ~rn) (fm fms `(repr ~ln) `(repr ~rn)))
-    )
+  (def [ln rn] [(gensym) (gensym)])
+  `(let [[~ln ~lhs] [~rn ~rhs]]
+    ~(tst `(~op ~ln ~rn) (fm fms `(repr ~ln) `(repr ~rn)))
   )
 )
 
