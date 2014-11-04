@@ -183,11 +183,8 @@
             "not-raises-exc" test-not-raises
             "not-raises-msg" test-not-raises-msg})
 
-(for [key opmap]
-  (assoc opmap (key.replace "-" "_") (opmap.pop key)))
-
 (defmacro test [name &rest args]
-  (def sname (str name))
+  (def sname (.replace (str name) "_" "-"))
   (if-not (in sname opmap)
     (macro-error name (% "unknown comparator: %s" sname)))
   (apply (get opmap sname) args))
