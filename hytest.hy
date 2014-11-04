@@ -52,7 +52,7 @@
   `(if-not ~exp (raise (AssertionError ~msg))))
 
 (defn cmp-base [op lhs rhs fms]
-  (def [ln rn] [(gensym) (gensym)])
+  (setv [ln rn] [(gensym) (gensym)])
   `(let [[~ln ~lhs] [~rn ~rhs]]
     ~(tst `(~op ~ln ~rn) (fm fms `(repr ~ln) `(repr ~rn)))))
 
@@ -102,7 +102,7 @@
     (else (raise (AssertionError "code did not raise exception")))))
 
 (defn test-raises [exceptions &rest body]
-  (def strexc (HyString (.join ", " (map str exceptions))))
+  (setv strexc (HyString (.join ", " (map str exceptions))))
   `(try
     ~@body
     (catch [[~@exceptions]])
@@ -184,7 +184,7 @@
             "not-raises-msg" test-not-raises-msg})
 
 (defmacro test [name &rest args]
-  (def sname (.replace (str name) "_" "-"))
+  (setv sname (.replace (str name) "_" "-"))
   (if-not (in sname opmap)
     (macro-error name (% "unknown comparator: %s" sname)))
   (apply (get opmap sname) args))
@@ -195,35 +195,35 @@
 (defn add-test [func file]
   (if-not (in file tests)
     (assoc tests file (.OrderedDict (__import__ "collections"))))
-  (def mytests (get tests file))
+  (setv mytests (get tests file))
   (if (in func.__name__ mytests)
     (warnings.warn (+ "duplicate test: " file ":" func.__name__)))
   (assoc mytests func.__name__ func))
 
 (defn get-setup-and-teardown [body]
-  (def body (list body))
+  (setv body (list body))
   (defmacro get-f2 [x] `(if (and body (get body 0)) (get (get body 0) 0) nil))
   (if (= (get-f2 body) (HySymbol "test_setup"))
-    (def setup (slice (.pop body 0) 1))
-    (def setup (HyExpression [])))
+    (setv setup (slice (.pop body 0) 1))
+    (setv setup (HyExpression [])))
   (if (= (get-f2 body) (HySymbol "test_teardown"))
-    (def teardown (slice (.pop body 0) 1))
-    (def teardown (HyExpression [])))
+    (setv teardown (slice (.pop body 0) 1))
+    (setv teardown (HyExpression [])))
   (, (tuple body) setup teardown))
 
 (defmacro test-set [name &rest body]
-  (def [body setup teardown] (get-setup-and-teardown body))
+  (setv [body setup teardown] (get-setup-and-teardown body))
   `(do
     (defn ~name [] ~@setup (try (do ~@body) (finally ~@teardown)))
     (.add-test (__import__ "hytest") ~name __file__)))
 
 (defmacro test-set-fails [name &rest body]
-  (def [body setup teardown] (get-setup-and-teardown body))
-  (def skipexc (gensym))
+  (setv [body setup teardown] (get-setup-and-teardown body))
+  (setv skipexc (gensym))
   `(do
     (defn ~name []
       ~@setup
-      (def ~skipexc (getattr (__import__ "hytest") "SkipException"))
+      (setv ~skipexc (getattr (__import__ "hytest") "SkipException"))
       (try
         (do ~@body)
         (catch [~skipexc] (raise))
@@ -234,19 +234,19 @@
 (defn main [this &rest args]
   (if (or (in "-h" args) (in "--help" args))
     (sys.exit (% "usage: %s <tests-to-run>" this)))
-  (def wanted-names args)
+  (setv wanted-names args)
   (defn starstr [s]
-    (def stars (* "*" (len s)))
+    (setv stars (* "*" (len s)))
     (print stars)
     (print s)
     (print stars))
   (load-tests)
-  (def wanted (OrderedDict))
+  (setv wanted (OrderedDict))
   (when wanted-names
     (for [n wanted-names]
       (if-not (in ":" n)
         (sys.exit (% "test name %s must have module specifier" n))
-        (def [mod test] (n.split ":")))
+        (setv [mod test] (n.split ":")))
       (if-not (in mod tests)
         (sys.exit (+ "unknown module: " mod)))
       (if-not (in test (get tests mod))
@@ -255,28 +255,28 @@
         (assoc wanted mod (OrderedDict)))
       (assoc (get wanted mod) test (get (get tests mod) test))))
   (unless wanted
-    (def wanted tests))
-  (def run 0)
-  (def skipped [])
-  (def traces [])
-  (def outputs (, [] [] []))
-  (def stdout sys.stdout)
-  (def stderr sys.stderr)
+    (setv wanted tests))
+  (setv run 0)
+  (setv skipped [])
+  (setv traces [])
+  (setv outputs (, [] [] []))
+  (setv stdout sys.stdout)
+  (setv stderr sys.stderr)
   (for [[mod mtests] (wanted.items)]
     (sys.stdout.write (% "\033[34m%s\033[0m " mod))
     (for [[name tst] (mtests.items)]
-      (def fullname (--hytest-fm "%s:%s" mod name))
-      (def out (StringIO))
-      (def err (StringIO))
-      (def sys.stdout out)
-      (def sys.stderr err)
+      (setv fullname (--hytest-fm "%s:%s" mod name))
+      (setv out (StringIO))
+      (setv err (StringIO))
+      (setv sys.stdout out)
+      (setv sys.stderr err)
       (try
         (try
           (tst)
           (catch [] (raise))
           (finally
-            (def sys.stdout stdout)
-            (def sys.stderr stderr)))
+            (setv sys.stdout stdout)
+            (setv sys.stderr stderr)))
         (catch [e SkipException]
           (skipped.append (, fullname (str e)))
           (.append (get outputs 1) (, fullname (out.getvalue) (err.getvalue)))
@@ -292,10 +292,10 @@
           (+= run 1))))
     (print))
   (defn print-bufs [n]
-    (def st (get outputs n))
+    (setv st (get outputs n))
     (if-not st
       (raise (ValueError "")))
-    (def (, tst out err) (get st 0))
+    (setv (, tst out err) (get st 0))
     (when out
       (starstr (% "CAPTURED STDOUT: %s: " tst))
       (print out))
@@ -324,14 +324,14 @@
   (print (% "\033[35mTests skipped: %d\033[0m" (len skipped))))
 
 (defn find-tests []
-  (def test-paths [])
+  (setv test-paths [])
   (for [[root dirs files] (walk (getcwd))]
-    (if (= root (getcwd)) (def root ""))
+    (if (= root (getcwd)) (setv root ""))
     (let [[repl-dirs []]]
       (for [d dirs]
         (if (d.startswith "test")
           (repl-dirs.append (path.join root d))))
-      (def (slice dirs) repl-dirs))
+      (setv (slice dirs) repl-dirs))
     (for [f files]
       (if (and (f.startswith "test") (= (get (path.splitext f) 1) ".hy"))
         (test-paths.append (path.join root f)))))
