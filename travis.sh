@@ -1,16 +1,18 @@
 #!/bin/bash
 
+set -e
+
 pypy_url=http://buildbot.pypy.org/nightly/trunk/pypy-c-jit-latest-linux.tar.bz2
 pip_url=https://bootstrap.pypa.io/get-pip.py
-python=python
+python=pypy-c
 pip=pip
 
 if $python --version 2>&1 | grep PyPy; then
-    echo "Fetching PyPy nightly..."
+    echo "Fetching PyPy..."
     curl $pypy_url -o pypy.tbz2
     echo "Extracting PyPy..."
     tar xf pypy.tbz2
-    python=pypy-c-jit-*-linux/bin/pypy
+    python=pypy-/bin/pypy
     echo "Downloading pip..."
     curl $pip_url | $python
     pip=`dirname $python`/pip

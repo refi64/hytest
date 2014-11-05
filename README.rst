@@ -1,6 +1,9 @@
 HyTest
 ======
 
+.. image:: https://travis-ci.org/kirbyfan64/hytest.png
+    :target: https://travis-ci.org/kirbyfan64/hytest
+
 HyTest is a really cool unit testing framework for `Hy <http://docs.hylang.org/>`_ (think Python+Lisp). Actually, as far as I know, it's the *only* unit testing framework for Hy. Here's an example:
 
 .. code:: clojure
