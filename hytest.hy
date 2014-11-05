@@ -10,15 +10,11 @@
         sys)
 
 (if-python2
-  (do
-    (try
-      (import [cStringIO [StringIO]])
-      (catch []
-        (import [StringIO [StringIO]])))
-    (defmacro --hytest-x [x] `(raise ~x)))
-  (do
-    (import [io [StringIO]])
-    (defmacro --hytest-x [x] `(raise ~x :from nil))))
+  (try
+    (import [cStringIO [StringIO]])
+    (catch []
+      (import [StringIO [StringIO]])))
+  (import [io [StringIO]]))
 
 (def __version__ 0.1)
 
@@ -49,7 +45,7 @@
   `(% ~s (, ~@args)))
 
 (defn tst [exp msg]
-  `(if-not ~exp (raise (AssertionError ~msg))))
+  `(if-not ~exp (fail-test ~msg)))
 
 (defn cmp-base [op lhs rhs fms]
   (setv [ln rn] [(gensym) (gensym)])
@@ -99,46 +95,43 @@
   `(try
     ~@body
     (catch [])
-    (else (raise (AssertionError "code did not raise exception")))))
+    (else (fail-test "code did not raise exception"))))
 
 (defn test-raises [exceptions &rest body]
   (setv strexc (HyString (.join ", " (map str exceptions))))
   `(try
     ~@body
     (catch [[~@exceptions]])
-    (else (raise (AssertionError (+ "code did not raise one of: " ~strexc))))))
+    (else (fail-test (+ "code did not raise one of: " ~strexc)))))
 
 (defn test-raises-msg [m &rest body]
   `(try
     ~@body
     (catch [~raise-var Exception]
       (if-not (.search (__import__ "re") ~m (str ~raise-var))
-        (raise (AssertionError
-          ~(fm "exception message '%s' did not match " `(str ~raise-var) m)))))
-    (else (raise (AssertionError "code did not raise exception")))))
+        (fail-test
+          ~(fm "exception message '%s' did not match " `(str ~raise-var) m))))
+    (else (fail-test "code did not raise exception"))))
 
 (defn test-not-raises-any [&rest body]
   `(try
     ~@body
     (catch [~raise-var Exception]
-      (--hytest-x
-        (AssertionError (+ "code raised exception " (repr ~raise-var)))))))
+      (fail-test (+ "code raised exception " (repr ~raise-var))))))
 
 (defn test-not-raises [exceptions &rest body]
   `(try
     ~@body
     (catch [~raise-var [~@exceptions]]
-      (--hytest-x
-        (AssertionError (+ "code raised exception " (repr ~raise-var)))))))
+      (fail-test (+ "code raised exception " (repr ~raise-var))))))
 
 (defn test-not-raises-msg [m &rest body]
   `(try
     ~@body
     (catch [~raise-var Exception]
       (if (.search (__import__ "re") ~m (str ~raise-var))
-        (--hytest-x
-          (AssertionError ~(fm "raised exception message '%s' matched %s"
-            `(str ~raise-var) m)))))))
+        (fail-test ~(fm "raised exception message '%s' matched %s"
+            `(str ~raise-var) m))))))
 
 (def opmap {"=" test-eq
             "==" test-eq
