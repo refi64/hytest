@@ -27,8 +27,12 @@ install_lib.run = run
 assert install.sub_commands[0][0] == 'install_lib'
 install.sub_commands[0] = (install.sub_commands[0][0], lambda *_: True)
 
-import hy
-from hytest import __version__
+try:
+    import hy
+    from hytest import __version__
+except:
+    # this sucks
+    __version__ = "unknown"
 
 try:
     with open('README.rst', 'r') as f:
