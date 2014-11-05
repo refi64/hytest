@@ -4,7 +4,7 @@ set -e
 
 pypy_url=http://buildbot.pypy.org/nightly/trunk/pypy-c-jit-latest-linux.tar.bz2
 pip_url=https://bootstrap.pypa.io/get-pip.py
-python=pypy-c
+python=python
 pip=pip
 
 if $python --version 2>&1 | grep PyPy; then
