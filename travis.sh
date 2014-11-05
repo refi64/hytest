@@ -16,6 +16,8 @@ if $python --version 2>&1 | grep PyPy; then
     echo "Downloading pip..."
     curl $pip_url | $python
     pip=`dirname $python`/pip
+    ls pypy-*
+    ls pypy-*/bin
 fi
 
 echo "Installing dependencies..."
