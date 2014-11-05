@@ -16,7 +16,7 @@
       (import [StringIO [StringIO]])))
   (import [io [StringIO]]))
 
-(def __version__ 0.1)
+(def __version__ 0.2)
 
 (try
   (import colorama)
