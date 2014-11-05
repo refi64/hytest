@@ -1,0 +1,23 @@
+#!/bin/bash
+
+pypy_url=http://buildbot.pypy.org/nightly/trunk/pypy-c-jit-latest-linux.tar.bz2
+pip_url=https://bootstrap.pypa.io/get-pip.py
+python=python
+pip=pip
+
+if $python --version 2>&1 | grep PyPy; then
+    echo "Fetching PyPy nightly..."
+    curl $pypy_url -o pypy.tbz2
+    echo "Extracting PyPy..."
+    tar xf pypy.tbz2
+    python=pypy-c-jit-*-linux/bin/pypy
+    echo "Downloading pip..."
+    curl $pip_url | $python
+    pip=`dirname $python`/pip
+fi
+
+echo "Installing dependencies..."
+$pip install -r requirements.txt
+
+echo "Running tests..."
+$python ./hytest
