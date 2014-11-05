@@ -12,7 +12,7 @@ if $python --version 2>&1 | grep PyPy; then
     curl $pypy_url -o pypy.tbz2
     echo "Extracting PyPy..."
     tar xf pypy.tbz2
-    python=pypy-/bin/pypy
+    python=pypy-*/bin/pypy
     echo "Downloading pip..."
     curl $pip_url | $python
     pip=`dirname $python`/pip
