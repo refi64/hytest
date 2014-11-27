@@ -50,7 +50,16 @@
 (defn cmp-base [op lhs rhs fms]
   (setv [ln rn] [(gensym) (gensym)])
   `(let [[~ln ~lhs] [~rn ~rhs]]
-    ~(tst `(~op ~ln ~rn) (fm fms `(repr ~ln) `(repr ~rn)))))
+    ~(tst `(~op ~ln ~rn)
+          `(+
+            ~(fm fms `(repr ~ln) `(repr ~rn))
+            (if (and (isinstance ~ln basestring) (isinstance ~rn basestring)
+                     (in "\n" ~ln) (in "\n" ~rn))
+                (+ "\n" (.join "\n"
+                               (.ndiff (__import__ "difflib")
+                                       (.splitlines ~ln)
+                                       (.splitlines ~rn))))
+                "")))))
 
 (defn test-eq [lhs rhs] (cmp-base `= lhs rhs "%s != %s"))
 (defn test-ne [lhs rhs] (cmp-base `!= lhs rhs "%s == %s"))
