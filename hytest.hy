@@ -119,7 +119,7 @@
     (catch [~raise-var Exception]
       (if-not (.search (__import__ "re") ~m (str ~raise-var))
         (fail-test
-          ~(fm "exception message '%s' did not match " `(str ~raise-var) m))))
+          ~(fm "exception message '%s' did not match %s" `(str ~raise-var) m))))
     (else (fail-test "code did not raise exception"))))
 
 (defn test-not-raises-any [&rest body]
