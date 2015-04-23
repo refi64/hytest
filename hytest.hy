@@ -143,7 +143,6 @@
             `(str ~raise-var) m))))))
 
 (def opmap {"=" test-eq
-            "==" test-eq
             "!=" test-ne
             "<" test-lt
             ">" test-gt
@@ -160,7 +159,6 @@
             "is-nil" test-is-nil
             "is-not-nil" test-is-not-nil
             "is-none" test-is-nil
-            "is-not-none" test-is-not-nil
             "~" test-almost-eq
             "!~" test-almost-ne
             "aeq" test-almost-eq
