@@ -321,7 +321,8 @@
   (print (% "\033[34mTests run: %d" run))
   (print (% "\033[32mTests succeeded: %d" (- run (len traces) (len skipped))))
   (print (% "\033[31mTests failed: %d\033[0m" (len traces)))
-  (print (% "\033[35mTests skipped: %d\033[0m" (len skipped))))
+  (print (% "\033[35mTests skipped: %d\033[0m" (len skipped)))
+  (-> traces bool int))
 
 (defn find-tests []
   (setv test-paths [])
