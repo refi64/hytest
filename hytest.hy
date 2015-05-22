@@ -48,12 +48,12 @@
   `(if-not ~exp (fail-test ~msg)))
 
 (defn cmp-base [op lhs rhs fms]
-  (setv [ln rn] [(gensym) (gensym)])
-  `(let [[~ln ~lhs] [~rn ~rhs]]
+  (setv [ln rn astr] [(gensym) (gensym) (gensym)])
+  `(let [[~ln ~lhs] [~rn ~rhs] [~astr ~(if-python2 `basestring `(, str bytes))]]
     ~(tst `(~op ~ln ~rn)
           `(+
             ~(fm fms `(repr ~ln) `(repr ~rn))
-            (if (and (isinstance ~ln basestring) (isinstance ~rn basestring)
+            (if (and (isinstance ~ln ~astr) (isinstance ~rn ~astr)
                      (in "\n" ~ln) (in "\n" ~rn))
                 (+ "\n" (.join "\n"
                                (.ndiff (__import__ "difflib")
