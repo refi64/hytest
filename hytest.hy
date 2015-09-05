@@ -12,7 +12,7 @@
 (if-python2
   (try
     (import [cStringIO [StringIO]])
-    (catch []
+    (except []
       (import [StringIO [StringIO]])))
   (import [io [StringIO]]))
 
@@ -20,7 +20,7 @@
 
 (try
   (import colorama)
-  (catch [])
+  (except [])
   (else (colorama.init)))
 
 (defclass SkipException [Exception] [])
@@ -39,7 +39,7 @@
   `(raise (.FailException (__import__ "hytest") ~msg)))
 
 (defn fm [s &rest args]
-  `(% ~(HyString s) (slice (, ~@args) 0 ~(HyInteger (s.count "%")))))
+  `(% ~(HyString s) (cut (, ~@args) 0 ~(HyInteger (s.count "%")))))
 
 (defmacro --hytest-fm [s &rest args]
   `(% ~s (, ~@args)))
@@ -103,20 +103,20 @@
 (defn test-raises-any [&rest body]
   `(try
     ~@body
-    (catch [])
+    (except [])
     (else (fail-test "code did not raise exception"))))
 
 (defn test-raises [exceptions &rest body]
   (setv strexc (HyString (.join ", " (map str exceptions))))
   `(try
     ~@body
-    (catch [[~@exceptions]])
+    (except [[~@exceptions]])
     (else (fail-test (+ "code did not raise one of: " ~strexc)))))
 
 (defn test-raises-msg [m &rest body]
   `(try
     ~@body
-    (catch [~raise-var Exception]
+    (except [~raise-var Exception]
       (if-not (.search (__import__ "re") ~m (str ~raise-var))
         (fail-test
           ~(fm "exception message '%s' did not match %s" `(str ~raise-var) m))))
@@ -125,19 +125,19 @@
 (defn test-not-raises-any [&rest body]
   `(try
     ~@body
-    (catch [~raise-var Exception]
+    (except [~raise-var Exception]
       (fail-test (+ "code raised exception " (repr ~raise-var))))))
 
 (defn test-not-raises [exceptions &rest body]
   `(try
     ~@body
-    (catch [~raise-var [~@exceptions]]
+    (except [~raise-var [~@exceptions]]
       (fail-test (+ "code raised exception " (repr ~raise-var))))))
 
 (defn test-not-raises-msg [m &rest body]
   `(try
     ~@body
-    (catch [~raise-var Exception]
+    (except [~raise-var Exception]
       (if (.search (__import__ "re") ~m (str ~raise-var))
         (fail-test ~(fm "raised exception message '%s' matched %s"
             `(str ~raise-var) m))))))
@@ -204,10 +204,10 @@
   (setv body (list body))
   (defmacro get-f2 [x] `(if (and body (get body 0)) (get (get body 0) 0) nil))
   (if (= (get-f2 body) (HySymbol "test_setup"))
-    (setv setup (slice (.pop body 0) 1))
+    (setv setup (cut (.pop body 0) 1))
     (setv setup (HyExpression [])))
   (if (= (get-f2 body) (HySymbol "test_teardown"))
-    (setv teardown (slice (.pop body 0) 1))
+    (setv teardown (cut (.pop body 0) 1))
     (setv teardown (HyExpression [])))
   (, (tuple body) setup teardown))
 
@@ -226,8 +226,8 @@
       (setv ~skipexc (getattr (__import__ "hytest") "SkipException"))
       (try
         (do ~@body)
-        (catch [~skipexc] (raise))
-        (catch [])
+        (except [~skipexc] (raise))
+        (except [])
         (finally ~@teardown)))
     (.add-test (__import__ "hytest") ~name __file__)))
 
@@ -273,15 +273,15 @@
       (try
         (try
           (tst)
-          (catch [] (raise))
+          (except [] (raise))
           (finally
             (setv sys.stdout stdout)
             (setv sys.stderr stderr)))
-        (catch [e SkipException]
+        (except [e SkipException]
           (skipped.append (, fullname (str e)))
           (.append (get outputs 1) (, fullname (out.getvalue) (err.getvalue)))
           (sys.stdout.write "\033[35mS\033[0m"))
-        (catch [e Exception]
+        (except [e Exception]
           (sys.stdout.write "\033[31mF\033[0m")
           (traces.append (, fullname (traceback.format-exc)))
           (.append (get outputs 0) (, fullname (out.getvalue) (err.getvalue))))
@@ -306,7 +306,7 @@
   (while true
     (try
       (print-bufs 2)
-      (catch [ValueError] (break))))
+      (except [ValueError] (break))))
   (for [[tst trace] traces]
     (print_bufs 0)
     (print "\033[31m")
@@ -332,7 +332,7 @@
       (for [d dirs]
         (if (d.startswith "test")
           (repl-dirs.append (path.join root d))))
-      (setv (slice dirs) repl-dirs))
+      (setv (cut dirs) repl-dirs))
     (for [f files]
       (if (and (f.startswith "test") (= (get (path.splitext f) 1) ".hy"))
         (test-paths.append (path.join root f)))))
