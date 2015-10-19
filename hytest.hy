@@ -48,8 +48,9 @@
   `(if-not ~exp (fail-test ~msg)))
 
 (defn cmp-base [op lhs rhs fms]
-  (setv [ln rn astr] [(gensym) (gensym) (gensym)])
-  `(let [[~ln ~lhs] [~rn ~rhs] [~astr ~(if-python2 `basestring `(, str bytes))]]
+  (setv ln (gensym) rn (gensym) astr (gensym))
+  `(do
+    (setv ~ln ~lhs ~rn ~rhs ~astr ~(if-python2 `basestring `(, str bytes)))
     ~(tst `(~op ~ln ~rn)
           `(+
             ~(fm fms `(repr ~ln) `(repr ~rn))
@@ -59,7 +60,8 @@
                                (.ndiff (__import__ "difflib")
                                        (.splitlines ~ln)
                                        (.splitlines ~rn))))
-                "")))))
+                "")))
+    (del ~ln ~rn ~astr)))
 
 (defn test-eq [lhs rhs] (cmp-base `= lhs rhs "%s != %s"))
 (defn test-ne [lhs rhs] (cmp-base `!= lhs rhs "%s == %s"))
@@ -328,11 +330,11 @@
   (setv test-paths [])
   (for [[root dirs files] (walk (getcwd))]
     (if (= root (getcwd)) (setv root ""))
-    (let [[repl-dirs []]]
-      (for [d dirs]
-        (if (d.startswith "test")
-          (repl-dirs.append (path.join root d))))
-      (setv (cut dirs) repl-dirs))
+    (setv repl-dirs [])
+    (for [d dirs]
+      (if (d.startswith "test")
+        (repl-dirs.append (path.join root d))))
+    (setv (cut dirs) repl-dirs)
     (for [f files]
       (if (and (f.startswith "test") (= (get (path.splitext f) 1) ".hy"))
         (test-paths.append (path.join root f)))))
