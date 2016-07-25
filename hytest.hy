@@ -326,21 +326,15 @@
   (print (% "\033[35mTests skipped: %d\033[0m" (len skipped)))
   (-> traces bool int))
 
-(defn find-tests []
+(defn find-tests [dir]
   (setv test-paths [])
-  (for [[root dirs files] (walk (getcwd))]
-    (if (= root (getcwd)) (setv root ""))
-    (setv repl-dirs [])
-    (for [d dirs]
-      (if (d.startswith "test")
-        (repl-dirs.append (path.join root d))))
-    (setv (cut dirs) repl-dirs)
+  (for [[root dirs files] (walk dir)]
     (for [f files]
       (if (and (f.startswith "test") (= (get (path.splitext f) 1) ".hy"))
         (test-paths.append (path.join root f)))))
   test-paths)
 
 (defn load-tests []
-  (for [p (find-tests)]
+  (for [p (find-tests (getcwd))]
     (mods.append
       (import-file-to-module (get (path.splitext (path.basename p)) 0) p))))
