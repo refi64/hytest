@@ -1,5 +1,8 @@
 (require hytest)
-(import [hytest [FailException]])
+(import [hytest [find-tests FailException]]
+        [os [getcwd makedirs path]]
+        [shutil [rmtree]]
+        [tempfile [mkdtemp]])
 
 (test-set test-setup-and-teardown
   (test-setup
@@ -87,3 +90,22 @@
 
 (test-set test-globals
   (test = x 1))
+
+(defn touch [&rest parts]
+  "Join the path `parts` and touch the resulting filename."
+  (.close (open (apply path.join parts) "a")))
+
+(test-set test-find-tests
+  (let [root (mkdtemp)]
+    (try
+     (do (makedirs (path.join root "a" "b" "c"))
+         (touch root "test_root.hy")
+         (touch root "a" "test_a.hy")
+         (touch root "a" "b" "test_b.hy")
+         (touch root "a" "b" "c" "test_c.hy")
+         (test = (find-tests root)
+               [(path.join root "test_root.hy")
+                (path.join root "a" "test_a.hy")
+                (path.join root "a" "b" "test_b.hy")
+                (path.join root "a" "b" "c" "test_c.hy")]))
+     (finally (rmtree root)))))
