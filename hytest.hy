@@ -73,8 +73,8 @@
 (defn test-is [lhs rhs] (cmp-base `is lhs rhs "%s is not %s"))
 (defn test-is-not [lhs rhs] (cmp-base `is-not lhs rhs "%s is %s"))
 
-(defn test-is-nil [x] (test-is x `nil))
-(defn test-is-not-nil [x] (test-is-not x `nil))
+(defn test-is-nil [x] (test-is x `None))
+(defn test-is-not-nil [x] (test-is-not x `None))
 
 (defn almost-base [op] `(fn [lhs rhs] (~op (round (- lhs rhs) 7) 0)))
 (defn test-almost-eq [lhs rhs] (cmp-base (almost-base `=) lhs rhs
@@ -94,8 +94,8 @@
 (defn test-items-ne [lhs rhs] (cmp-base (items-base `!=) lhs rhs
                                "items in %s are equal to items in %s"))
 
-(defn test-true [x] (cmp-base `(fn [x _] x) x `nil "%s is not true"))
-(defn test-not [x] (cmp-base `(fn [x _] (not x)) x `nil "%s is not true"))
+(defn test-true [x] (cmp-base `(fn [x _] x) x `None "%s is not true"))
+(defn test-not [x] (cmp-base `(fn [x _] (not x)) x `None "%s is not true"))
 
 (defn test-in [x sq] (cmp-base `in x sq "item %s not in sequence %s"))
 (defn test-not-in [x sq] (cmp-base `not-in x sq "item %s is in sequence %s"))
@@ -204,7 +204,7 @@
 
 (defn get-setup-and-teardown [body]
   (setv body (list body))
-  (defmacro get-f2 [x] `(if (and body (get body 0)) (get (get body 0) 0) nil))
+  (defmacro get-f2 [x] `(if (and body (get body 0)) (get (get body 0) 0) None))
   (if (= (get-f2 body) (HySymbol "test_setup"))
     (setv setup (cut (.pop body 0) 1))
     (setv setup (HyExpression [])))
@@ -305,7 +305,7 @@
       (starstr (% "CAPTURED STDERR: %s: " tst))
       (print err))
     (st.pop 0))
-  (while true
+  (while True
     (try
       (print-bufs 2)
       (except [ValueError] (break))))

@@ -1,4 +1,4 @@
-(require hytest)
+(require [hytest [*]])
 (import [hytest [find-tests FailException]]
         [os [getcwd makedirs path]]
         [shutil [rmtree]]
@@ -21,7 +21,7 @@
   (test raises-msg "failthis" (fail-test "failthis")))
 
 (test-set-fails test-fails2
-  (assert false))
+  (assert False))
 
 (test-set test-cmp
   (test = 1 1)
@@ -41,10 +41,10 @@
   (test raises-exc [FailException] (test is-not obj obj)))
 
 (test-set test-nil
-  (test is-nil nil)
+  (test is-nil None)
   (test is-not-nil 0)
   (test raises-exc [FailException] (test is-nil 0))
-  (test raises-exc [FailException] (test is-not-nil nil)))
+  (test raises-exc [FailException] (test is-not-nil None)))
 
 (test-set test-almost
   (test aeq 1.00000001 1)
@@ -71,19 +71,19 @@
   (test raises-exc [FailException] (test not-in 1 [1 2 3])))
 
 (test-set test-raises
-  (test raises (assert false))
-  (test raises-exc [AssertionError] (assert false))
+  (test raises (assert False))
+  (test raises-exc [AssertionError] (assert False))
   (test raises-msg "abc" (raise (ValueError "1abc2")))
-  (test not-raises (assert true))
-  (test not-raises-exc [AssertionError] (assert true))
+  (test not-raises (assert True))
+  (test not-raises-exc [AssertionError] (assert True))
   (test not-raises-msg "abc" (raise (ValueError "1ab2c"))))
 
 (test-set test-boolcmp
-  (test true 1)
-  (test false 0)
+  (test True 1)
+  (test False 0)
   (test not 0)
-  (test raises-exc [FailException] (test true 0))
-  (test raises-exc [FailException] (test false 1))
+  (test raises-exc [FailException] (test True 0))
+  (test raises-exc [FailException] (test False 1))
   (test raises-exc [FailException] (test not 1)))
 
 (def x 1)
