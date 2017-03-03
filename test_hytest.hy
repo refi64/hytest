@@ -96,16 +96,16 @@
   (.close (open (apply path.join parts) "a")))
 
 (test-set test-find-tests
-  (let [root (mkdtemp)]
-    (try
-     (do (makedirs (path.join root "a" "b" "c"))
-         (touch root "test_root.hy")
-         (touch root "a" "test_a.hy")
-         (touch root "a" "b" "test_b.hy")
-         (touch root "a" "b" "c" "test_c.hy")
-         (test = (find-tests root)
-               [(path.join root "test_root.hy")
-                (path.join root "a" "test_a.hy")
-                (path.join root "a" "b" "test_b.hy")
-                (path.join root "a" "b" "c" "test_c.hy")]))
-     (finally (rmtree root)))))
+  (setv root (mkdtemp))
+  (try
+   (do (makedirs (path.join root "a" "b" "c"))
+       (touch root "test_root.hy")
+       (touch root "a" "test_a.hy")
+       (touch root "a" "b" "test_b.hy")
+       (touch root "a" "b" "c" "test_c.hy")
+       (test = (find-tests root)
+             [(path.join root "test_root.hy")
+              (path.join root "a" "test_a.hy")
+              (path.join root "a" "b" "test_b.hy")
+              (path.join root "a" "b" "c" "test_c.hy")]))
+   (finally (rmtree root))))

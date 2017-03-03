@@ -1,8 +1,5 @@
 (import [hy.importer [import-file-to-module]]
-        [hy.models.string [HyString]]
-        [hy.models.integer [HyInteger]]
-        [hy.models.symbol [HySymbol]]
-        [hy.models.expression [HyExpression]]
+        [hy.models [HyExpression HyInteger HyString HySymbol]]
         [collections [OrderedDict]]
         [os [walk getcwd path]]
         traceback
