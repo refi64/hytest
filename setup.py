@@ -1,55 +1,56 @@
 try:
-    # assert False
     from setuptools import setup
-    from setuptools.command.install import install
-    from setuptools.command.install_lib import install_lib
-    kw = {'install_requires': 'hy >= 0.9.12'}
+    from setuptools.command.build_py import build_py
+    setuptools = True
 except:
     from distutils.core import setup
-    from distutils.command.install import install
-    from distutils.command.install_lib import install_lib
-    kw = {}
+    from distutils.command.build_py import build_py
+    setuptools = False
+
+import os, re
 
 # XXX: This is a hack
-import os, shutil
 
-orig_run = install_lib.run
+def patch(func):
+    setattr(build_py, func.__name__, func)
 
-def run(self):
-    self.skip_build = True
-    if not os.path.isdir(self.build_dir):
-        os.makedirs(os.path.join(os.path.curdir, self.build_dir))
-        shutil.copy('hytest.hy', os.path.join(self.build_dir, 'hytest.hy'))
-    orig_run(self)
+@patch
+def find_modules(self):
+    return [('', 'hytest', 'hytest.hy')]
 
-install_lib.run = run
+@patch
+def get_module_outfile(self, build_dir, *_):
+    return os.path.join(build_dir, 'hytest.hy')
 
-assert install.sub_commands[0][0] == 'install_lib'
-install.sub_commands[0] = (install.sub_commands[0][0], lambda *_: True)
+this_dir = os.path.dirname(__file__)
 
-try:
-    import hy
-    from hytest import __version__
-except:
-    # this sucks
-    __version__ = "unknown"
+with open(os.path.join(this_dir, 'README.rst')) as f:
+    readme = f.read()
 
-try:
-    with open('README.rst', 'r') as f:
-        readme = f.read()
-except:
-    readme = ''
+with open(os.path.join(this_dir, 'hytest.hy')) as f:
+    version = re.search(r'\(def __version__ "([^"]+)"\)', f.read()).group(1)
 
-setup(name='HyTest',
-      version=str(__version__),
-      description='A testing framework for Hy',
-      long_description=readme,
-      author='Ryan Gonzalez',
-      classifiers=[
+with open(os.path.join(this_dir, 'requirements.txt')) as f:
+    hy_ver = f.read().strip()
+
+kw = {}
+if setuptools:
+    kw['install_requires'] = hy_ver
+
+setup(
+    name='HyTest',
+    version=version,
+    description='A testing framework for Hy',
+    long_description=readme,
+    author='Ryan Gonzalez',
+    author_email='rymg19@gmail.com',
+    classifiers=[
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Topic :: Software Development :: Testing'
-      ],
-      requires=['hy (>=0.9.12)'],
-      scripts=['hytest'],
-      **kw)
+    ],
+    requires=[hy_ver.replace('>= ', '(>=')+')'],
+    scripts=['hytest'],
+    py_modules=['hytest'],
+    url='https://github.com/kirbyfan64/hytest',
+    **kw)

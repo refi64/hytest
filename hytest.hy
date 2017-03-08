@@ -13,7 +13,7 @@
       (import [StringIO [StringIO]])))
   (import [io [StringIO]]))
 
-(def __version__ 0.2)
+(def __version__ "0.2")
 
 (try
   (import colorama)
@@ -232,7 +232,10 @@
 
 (defn main [this &rest args]
   (if (or (in "-h" args) (in "--help" args))
-    (sys.exit (% "usage: %s <tests-to-run>" this)))
+    (sys.exit (% "usage: %s [--version] <tests-to-run>" this)))
+  (when (in "--version" args)
+    (print (+ "hytest v" __version__))
+    (-> 0 int sys.exit))
   (setv wanted-names args)
   (defn starstr [s]
     (setv stars (* "*" (len s)))
