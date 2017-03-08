@@ -7,15 +7,14 @@ HyTest
 HyTest is a really cool unit testing framework for `Hy <http://docs.hylang.org/>`_ (think Python+Lisp). Actually, as far as I know, it's the *only* unit testing framework for Hy. Here's an example:
 
 .. code:: clojure
-   
-   (require hytest) ; load HyTest
-   
+
+   (require hytest [*]) ; load HyTest
+
    (test-set abc ; define a test set, similar to a unittest test case
      (test-setup ; test setup
        (def x 0)
        (def y 1)
-       (def z nil)
-     )
+       (def z nil))
      (test-teardown ; test teardown; executed regardless of whether or not test failed
        ; nothing to see here!
      )
@@ -62,19 +61,15 @@ HyTest is a really cool unit testing framework for `Hy <http://docs.hylang.org/>
      (test raises-exc [AssertionError] (assert false)) ; test that the code that follows raises one of the exceptions in the list
      (test not-raises-exc [AssertionError] (assert true)) ; test that one of the given exceptions is NOT raised by the code that follows
      (test raises-msg "abc" (raise (ValueError "abc"))) ; test that the code that follows raises an exception whose message matches the regex "abc"
-     (test not-raises-msg "abc" (raise (ValueError "ab"))) ; opposite of raises-msg
-   )
-   
+     (test not-raises-msg "abc" (raise (ValueError "ab")))) ; opposite of raises-msg
+
    (test-set xyz
      (if true
-       (skip-test "Reason for skipping here") ; skip-test skips the current test
-     )
-   )
-   
+       (skip-test "Reason for skipping here"))) ; skip-test skips the current test
+
    (test-set-fails fls ; test-set-fails defines a test set that *should* fail
-     (test not 1)
-   )
+     (test not 1))
 
 To run the tests, just run::
-   
+
    $ hytest
