@@ -20,6 +20,14 @@
   (except [])
   (else (colorama.init)))
 
+(try
+  (import [hy.models [HyExpression HyInteger HyString HySymbol]])
+  (except []
+    (import [hy.models.expression [HyExpression]
+             hy.models.integer [HyInteger]
+             hy.models.string [HyString]
+             hy.models.symbol [HySymbol]])))
+
 (defclass SkipException [Exception] [])
 (defclass FailException [Exception] [])
 
