@@ -198,11 +198,16 @@
 (def mods [])
 (def tests (OrderedDict))
 
+(defn source-file []
+  `(if (in "__file__" (globals))
+     __file__ "<unkown-file>"))
+
 (defn add-test [func file]
   (if-not (in file tests)
     (assoc tests file (.OrderedDict (__import__ "collections"))))
   (setv mytests (get tests file))
-  (if (in func.__name__ mytests)
+  (when (and (not (= file "<unkown-file>"))
+             (in func.__name__ mytests))
     (warnings.warn (+ "duplicate test: " file ":" func.__name__)))
   (assoc mytests func.__name__ func))
 
@@ -221,7 +226,7 @@
   (setv [body setup teardown] (get-setup-and-teardown body))
   `(do
     (defn ~name [] ~@setup (try (do ~@body) (finally ~@teardown)))
-    (.add-test (__import__ "hytest") ~name __file__)))
+    (.add-test (__import__ "hytest") ~name ~(source-file))))
 
 (defmacro test-set-fails [name &rest body]
   (setv [body setup teardown] (get-setup-and-teardown body))
@@ -235,7 +240,7 @@
         (except [~skipexc] (raise))
         (except [])
         (finally ~@teardown)))
-    (.add-test (__import__ "hytest") ~name __file__)))
+    (.add-test (__import__ "hytest") ~name ~(source-file))))
 
 (defn main [this &rest args]
   (if (or (in "-h" args) (in "--help" args))
